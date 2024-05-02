@@ -1,12 +1,11 @@
 ﻿using Ejemplo01.Models;
+using Microsoft.EntityFrameworkCore;
 
 using (var db = new SchoolContext())
 {
-    var students = db.Students.ToList();
-
-    foreach (var student in students)
+    var estudiantes = db.Students.ToList();
+    foreach (var estudiante in estudiantes)
     {
-        Console.WriteLine($"Nombre = {student.Name}, " +
-            $"Registrado = {student.Registered}");
+        Console.WriteLine("Nombre: {0}", estudiante.Name);
     }
 }

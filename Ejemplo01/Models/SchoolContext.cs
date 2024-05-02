@@ -20,10 +20,10 @@ public partial class SchoolContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        string connection =
-            ConfigurationManager.ConnectionStrings["constring"].ConnectionString;
-        optionsBuilder.UseSqlServer(connection);
+        string conexion =ConfigurationManager.ConnectionStrings["constring"].ConnectionString;
+        optionsBuilder.UseSqlServer(conexion);
     }
+       
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
