@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using Ejemplo01.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ejemplo01.Models;
+namespace Ejemplo01.Data;
 
 public partial class SchoolContext : DbContext
 {
@@ -16,7 +17,12 @@ public partial class SchoolContext : DbContext
     {
     }
 
+    public virtual DbSet<Attendance> Attendances { get; set; }
+
     public virtual DbSet<Student> Students { get; set; }
+
+    public IQueryable<Student> GetRegisteredStudents()
+        => Students.Where(s => s.Registered);
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -27,10 +33,11 @@ public partial class SchoolContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Student>(entity =>
+        modelBuilder.Entity<Attendance>(entity =>
         {
-            entity.Property(e => e.StudentId).HasColumnName("StudentID");
-            entity.Property(e => e.Name).HasMaxLength(50);
+            entity.HasKey(e => e.AttendanceId).HasName("PK__Attendan__8B69263CE73E4380");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.Attendances).HasConstraintName("FK__Attendanc__Stude__571DF1D5");
         });
 
         OnModelCreatingPartial(modelBuilder);
