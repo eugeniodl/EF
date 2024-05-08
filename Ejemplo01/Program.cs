@@ -41,7 +41,7 @@ using (var db = new SchoolContext())
     }
 
     // Filtros globales
-    
+
     registeredStudents = db.GetRegisteredStudents().ToList();
 
     studentsStartingWithB = db.GetRegisteredStudents()
@@ -60,7 +60,50 @@ using (var db = new SchoolContext())
         Console.WriteLine($"{item.Name}");
     }
 
-    // Obtener los estudiantes que hayan asistido el día de hoy,
-    // ordenados por su ID de asistencia (AttendanceID)
+    Console.WriteLine("\nObtener los estudiantes que hayan asistido el día de hoy," +
+        " ordenados por su ID de asistencia (AttendanceID)");
+    var studentsPresentToday = db.GetPresentStudents()
+        .Where(a => a.Date == DateOnly.FromDateTime(DateTime.Today))
+        .OrderBy(a => a.AttendanceId)
+        .ToList();
+    foreach (var student in studentsPresentToday)
+    {
+        Console.WriteLine($"{student.Student.Name}");
+    }
 
- }
+    var studentsPresent = db.GetPresentStudents()
+        .Join(db.Students,
+        a => a.StudentId,
+        s => s.StudentId,
+        (a, s) => new
+        {
+            a.Date,
+            Name = s.Name
+        })
+        .Where(a => a.Date == DateOnly.FromDateTime(DateTime.Today))
+        .ToList();
+
+    foreach (var student in studentsPresent)
+    {
+        Console.WriteLine($"{student.Name}");
+    }
+
+    Console.WriteLine("\nMostrar los detalles de las asistencias " +
+        "(AttendanceID, StudentID, Date, Present) " +
+        "junto con los nombres de los estudiantes " +
+        "correspondientes de la tabla Attendance y Students respectivamente");
+
+    var attendanceDetailsWithStudentName = db.Attendances
+        .Select(a => new
+        {
+            a.AttendanceId,
+            a.StudentId,
+            a.Date,
+            a.Present,
+            StudentName = a.Student.Name
+        }).ToList();
+
+    Console.WriteLine("Obtener todos los estudiantes " +
+        "junto con el número total de asistencia que han registrado cada uno");
+
+}
