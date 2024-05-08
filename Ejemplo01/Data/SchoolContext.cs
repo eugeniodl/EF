@@ -22,7 +22,10 @@ public partial class SchoolContext : DbContext
     public virtual DbSet<Student> Students { get; set; }
 
     public IQueryable<Student> GetRegisteredStudents()
-        => Students.Where(s => s.Registered == true);
+        => Students.Where(s => s.Registered);
+
+    public IQueryable<Attendance> GetPresentStudents()
+        => Attendances.Where(s => s.Present);
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
