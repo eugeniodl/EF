@@ -24,6 +24,9 @@ public partial class SchoolContext : DbContext
     public IQueryable<Student> GetRegisteredStudents()
         => Students.Where(s => s.Registered);
 
+    public IQueryable<Attendance> GetPresentStudents()
+        => Attendances.Where(a => a.Present);
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         string connection =

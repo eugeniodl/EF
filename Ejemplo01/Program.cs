@@ -1,5 +1,7 @@
 ﻿
 using Ejemplo01.Data;
+using Ejemplo01.Models;
+using System.Text.RegularExpressions;
 
 using (var db = new SchoolContext())
 {
@@ -69,5 +71,60 @@ using (var db = new SchoolContext())
 
     Console.WriteLine("Obtener los estudiantes que hayan asistido el día de hoy," +
         "ordenados por su ID de asistencia (AttendanceID)");
+    var studentsPresentToday = db.GetPresentStudents()
+        .Where(a => a.Date == DateOnly.FromDateTime(DateTime.Today))
+        .OrderBy(a => a.AttendanceId)
+        .ToList();
 
+    foreach (var item in studentsPresentToday)
+    {
+        Console.WriteLine($"{item.Student.Name}");
+    }
+
+    Console.WriteLine("Mostrar los detalles de las asistencias " +
+        "(AttendaceID, StudentID, Date, Present) " +
+        "junto con los nombres de los estudiantes " +
+        "correspondientes de la tabla Attendance y Students respectivamente");
+    var attendanceDetailsWithStudentNames = db.Attendances
+        .Select(a => new
+        {
+            a.AttendanceId,
+            a.StudentId,
+            a.Date,
+            a.Present,
+            StudentName = a.Student.Name
+        }).ToList();
+
+    foreach (var item in attendanceDetailsWithStudentNames)
+    {
+        Console.WriteLine($"{item.AttendanceId} " +
+            $"{item.StudentId} " +
+            $"{item.Date} " +
+            $"{item.Present} " +
+            $"{item.StudentName}");
+    }
+
+    Console.WriteLine("Encontrar el día con la mayor cantidad de asistencias");
+    var dayWithMostAttendance = db.GetPresentStudents().GroupBy(a => a.Date)
+        .OrderByDescending(g => g.Count())
+        .Select(g => g.Key)
+        .FirstOrDefault();
+
+    Console.WriteLine(dayWithMostAttendance);
+
+    Console.WriteLine("Obtener todos los estudiantes " +
+        "junto con el número de asistencias que han registrado cada uno");
+    var studentsWithTotalAttendance =
+        db.GetPresentStudents()
+        .GroupBy(a => a.Student)
+        .Select(g => new
+        {
+            Estudiante = g.Key.Name,
+            Asistencia = g.Count()
+        }).ToList();
+
+    foreach( var item in studentsWithTotalAttendance)
+    {
+        Console.WriteLine($"{item.Estudiante} {item.Asistencia}");
+    }
 }
