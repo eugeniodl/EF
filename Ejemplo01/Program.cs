@@ -103,7 +103,26 @@ using (var db = new SchoolContext())
             StudentName = a.Student.Name
         }).ToList();
 
-    Console.WriteLine("Obtener todos los estudiantes " +
+    Console.WriteLine("\nObtener todos los estudiantes " +
         "junto con el número total de asistencia que han registrado cada uno");
+    var studentsWithTotalAttendance = db.GetPresentStudents()
+                                      .GroupBy(a => a.Student)
+                                      .Select(g => new
+                                      {
+                                          Estudiante = g.Key.Name,
+                                          Asistencia = g.Count()
+                                      }).ToList();
 
+    foreach (var item in studentsWithTotalAttendance)
+    {
+        Console.WriteLine($"{item.Estudiante} {item.Asistencia}");
+    }
+
+    Console.WriteLine("\nEncontrar el día con la mayor cantidad de asistencia");
+    var dayWithMostAttendance = db.GetPresentStudents()
+                                .GroupBy(a => a.Date)
+                                .OrderByDescending(g => g.Count())
+                                .Select(g => g.Key)
+                                .FirstOrDefault();
+    Console.WriteLine(dayWithMostAttendance);
 }
