@@ -1,6 +1,7 @@
 ﻿
 using Ejemplo01.Data;
 using Ejemplo01.Models;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Text.RegularExpressions;
 
 using (var db = new SchoolContext())
@@ -75,6 +76,21 @@ using (var db = new SchoolContext())
         .Where(a => a.Date == DateOnly.FromDateTime(DateTime.Today))
         .OrderBy(a => a.AttendanceId)
         .ToList();
+
+    var query = db.GetPresentStudents()
+                .Where(a => a.Date == DateOnly.FromDateTime(DateTime.Today))
+                .OrderBy(a => a.AttendanceId)
+                .Join(db.Students,
+                a => a.StudentId,
+                s => s.StudentId,
+                (a, s) => new
+                {
+                    s.Name
+                }).ToList();
+    foreach (var item in query)
+    {
+        Console.WriteLine($"{item.Name}");
+    }
 
     foreach (var item in studentsPresentToday)
     {
