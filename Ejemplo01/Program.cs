@@ -58,9 +58,25 @@ using(var db = new SchoolContext())
              .Where(a => a.Date == DateOnly.FromDateTime(DateTime.Today))
              .OrderBy(a => a.AttendanceId)
              .ToList();
+
+    var query = db.GetPresentStudents()
+        .Where(a => a.Date == DateOnly.FromDateTime(DateTime.Today))
+        .OrderBy(a => a.AttendanceId)
+        .Join(db.Students,
+        a => a.StudentId,
+        s => s.StudentId,
+        (a, s) => new
+        {
+            Name = s.Name
+        });
+    
     foreach (var item in studentsPresentToday)
     {
         Console.WriteLine($"{item.Student.Name}");
+    }
+    foreach (var item in query)
+    {
+        Console.WriteLine($"{item.Name}");
     }
 
     Console.WriteLine("Mostrar los detalles de las asistencias " +
@@ -86,5 +102,24 @@ using(var db = new SchoolContext())
     }
     Console.WriteLine("Obtener todos los estudiantes " +
         "junto con el número total de asistencias que han registrado cada uno");
+    var studentsWithTotalAttendance = db.GetPresentStudents()
+                                       .GroupBy(a => a.StudentId)
+                                       .Select(g => new
+                                       {
+                                           Estudiante = g.Key,
+                                           Asistencia = g.Count()
+                                       }).ToList();
+    foreach (var item in studentsWithTotalAttendance)
+    {
+        Console.WriteLine($"{item.Estudiante} {item.Asistencia}");
+    }
+
+    Console.WriteLine("Encontrar el día con la mayor cantidad de asistencia");
+    var dayWithMostAttendance = db.GetPresentStudents()
+                                  .GroupBy(a => a.Date)
+                                  .OrderByDescending(g => g.Count())
+                                  .Select(g => g.Key)
+                                  .FirstOrDefault();
+    Console.WriteLine(dayWithMostAttendance);
 
 }
